@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Test_Builder.Pages.CreateTestPage"
+             xmlns:vm ="clr-namespace:Test_Builder.ViewModels"
+             x:DataType="vm:CreateTestPageViewModel"
+             xmlns:model ="clr-namespace:Test_Builder.Models"
+             xmlns:templates="clr-namespace:Test_Builder.Resources.DataTemplates"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#202020">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="ListTemplateCheckBox" x:DataType="model:CheckBoxItem">
+                <HorizontalStackLayout>
+                    <CheckBox x:Name="ch" IsChecked="{Binding CorrectAnswer, Mode=TwoWay}"/>
+                    <Editor x:Name="ed" IsTextPredictionEnabled="True" Background="Transparent" HorizontalOptions="Fill" IsSpellCheckEnabled="True"  Placeholder="Enter your answer" Text="{Binding Text, Mode=TwoWay}"/>
+                    <ImageButton x:Name="RemoveItem" Background="White" Source="/Images/del.png"
+                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateTestPageViewModel}}, Path=RemoveItemCommand}"
+                         CommandParameter="{Binding}"/>
+                </HorizontalStackLayout>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ListTemplateRadioButton" x:DataType="model:RadioButtonItem">
+                <HorizontalStackLayout RadioButtonGroup.GroupName="{Binding Source={RelativeSource TemplatedParent}, Path=Context}">
+                    <RadioButton IsChecked="{Binding CorrectAnswer, Mode=TwoWay}"/>
+                    <Editor IsTextPredictionEnabled="True" Background="Transparent" HorizontalOptions="Fill" IsSpellCheckEnabled="True"  Placeholder="Enter your answer" Text="{Binding Text, Mode=TwoWay}"/>
+                    <ImageButton x:Name="RemoveItem" Background="White" Source="/Images/del.png"
+                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateTestPageViewModel}}, Path=RemoveItemCommand}"
+                             CommandParameter="{Binding}"/>
+                </HorizontalStackLayout>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ListTemplateText" x:DataType="model:TextItem">
+                <HorizontalStackLayout>
+                    <Editor IsTextPredictionEnabled="True" Background="Transparent" HorizontalOptions="Fill" IsSpellCheckEnabled="True"  Placeholder="Enter your answer" Text="{Binding CorrectAnswer, Mode=TwoWay}"/>
+                    <ImageButton BackgroundColor="White" x:Name="RemoveItem" Source="/Images/del.png"
+                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateTestPageViewModel}}, Path= RemoveItemCommand}"
+                             CommandParameter="{Binding}"/>
+                </HorizontalStackLayout>
+            </DataTemplate>
+
+            <templates:CreateTestTemplate x:Key="ItemSelector" CheckBox="{StaticResource ListTemplateCheckBox}"
+                                      RadioButton="{StaticResource ListTemplateRadioButton}"
+                                      Text="{StaticResource ListTemplateText}"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.15*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+            <VerticalStackLayout Grid.Row="0" HorizontalOptions="Fill">
+                <Button Text="CreateTest" Command="{Binding CreateTestCommand}"/>
+                <Editor Text="{Binding Test.Name, Mode=TwoWay}"/>
+            </VerticalStackLayout>
+        <CollectionView x:Name="Qestions" Grid.Row="1" ItemsSource="{Binding Test.Questions}"                     
+                        SelectionMode="None" VerticalOptions="Fill" HorizontalOptions="StartAndExpand" RadioButtonGroup.GroupName="1" IsGrouped="True" ItemTemplate="{StaticResource ItemSelector}">
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="model:Question">
+                    <HorizontalStackLayout HorizontalOptions="Fill">
+                        <Editor Placeholder="Enter a question title" Text="{Binding QuestionName}" HorizontalOptions="FillAndExpand"/>
+                        <ImageButton  Source="/Images/del.png" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateTestPageViewModel}}, Path= RemoveQuestionCommand}" CommandParameter="{Binding}"/>
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+            <CollectionView.GroupFooterTemplate>
+                <DataTemplate x:DataType="vm:CreateTestPageViewModel">
+                    <ImageButton HorizontalOptions="Center" Source="/Images/plus.png" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CreateTestPageViewModel}}, Path= AddItemCommand}" CommandParameter="{Binding}"/>
+                </DataTemplate>
+            </CollectionView.GroupFooterTemplate>
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout RadioButtonGroup.GroupName="1" Orientation="Vertical" BindingContext="{x:Reference Qestions}"/>
+            </CollectionView.ItemsLayout>
+        </CollectionView>
+        <Border Background="White" Grid.Row="{Binding Test.Questions.Count}" StrokeShape="RoundRectangle 25,0,25,0" HorizontalOptions="End" VerticalOptions="Start">
+            <VerticalStackLayout>
+                <Button BackgroundColor="Red" Command="{Binding CreateQuestionCheckBoxItemsCommand}"/>
+                <Button BackgroundColor="Red" Command="{Binding CreateQuestionRadioButtomItemsCommand}"/>
+                <Button BackgroundColor="Red" Command="{Binding CreateQuestionTextItemsCommand}"/>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>
